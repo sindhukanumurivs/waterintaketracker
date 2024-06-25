@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<style>
+    /* Additional CSS styles for the notification and button */
+.set-reminder-btn,#set-target-btn  {
+    background-color: rgb(170, 237, 255); /* Light blue similar to water bubble */
+    color: #454545;
+    font-weight: 600;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+
+#set-target-btn:hover {
+    background-color:  rgb(154, 220, 255);
+}
+.set-reminder-btn:hover {
+    background-color: rgb(154, 220, 255); /* Darker shade for hover effect */
+}
+
+    /* Additional CSS styles for the notification */
+    @font-face {
+        font-family: "work sans";
+        src: url("/static/WorkSans-VariableFont_wght.ttf") format("TrueType");
+    }
+    /* Additional CSS styles for the notification and button */
+  .set-reminder-btn {
+      background-color: rgb(170, 237, 255); /* Light blue similar to water bubble */
+      color: #454545;
+      font-weight: 600;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s ease-in-out;
+  }
+  
+  .set-reminder-btn:hover {
+      background-color: rgb(154, 220, 255); /* Darker shade for hover effect */
+  }
+  
+  
+    *,
+    *::after,
+    *::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        list-style: none;
+        font-family: "work sans";
+    }
+  
+    html {
+        font-size: 62.5%;
+    }
+  
+    body {
+        background-color: rgb(174, 240, 255);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3%;
+    }
+  
+    .d-flex {
+        display: flex;
+    }
+  
+    .hidden {
+        display: none;
+    }
+  
+    .container {
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 50px;
+        width: 100%;
+        max-width: 700px;
+        padding: 50px;
+        background-color: rgb(248, 248, 248);
+        border-radius: 40px;
+  
+        -webkit-border-radius: 40px;
+        -moz-border-radius: 40px;
+        -ms-border-radius: 40px;
+        -o-border-radius: 40px;
+    }
+  
+    .col {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+  
+    .drinked-water {
+        font-size: 5rem;
+    }
+  
+    .drink-target {
+        margin-top: 5px;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #454545;
+    }
+  
+    .drop-container {
+        width: 200px;
+        margin-top: 40px;
+        position: relative;
+    }
+  
+    .drop {
+        width: 100%;
+        aspect-ratio: 1/1;
+        position: relative;
+        background-color: rgb(170, 237, 255);
+        border-radius: 25% 75% 44% 56% / 29% 30% 70% 71%;
+        box-shadow: inset 10px 20px 20px rgba(0, 0, 0, 0.2),
+            5px 5px 5px rgba(0, 0, 0, 0.1), 15px 10px 25px rgba(0, 0, 0, 0.2),
+            inset -10px -20px 10px rgba(255, 255, 255, 0.323);
+        overflow: hidden;
+  
+        -webkit-border-radius: 25% 75% 44% 56% / 29% 30% 70% 71%;
+        -moz-border-radius: 25% 75% 44% 56% / 29% 30% 70% 71%;
+        -ms-border-radius: 25% 75% 44% 56% / 29% 30% 70% 71%;
+        -o-border-radius: 25% 75% 44% 56% / 29% 30% 70% 71%;
+    }
+  
+    .water {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+  
+    .water-bubble {
+        width: 20px;
+        height: 20px;
+        background-color: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        position: absolute;
+        bottom: 0;
+        animation: bubble 5s infinite;
+        opacity: 0.8;
+    }
+  
+    .water-bubble:nth-child(1) {
+        left: 20%;
+        animation-duration: 4s;
+    }
+  
+    .water-bubble:nth-child(2) {
+        left: 40%;
+        animation-duration: 6s;
+    }
+  
+    .water-bubble:nth-child(3) {
+        left: 60%;
+        animation-duration: 8s;
+    }
+  
+    .water-bubble:nth-child(4) {
+        left: 80%;
+        animation-duration: 3s;
+    }
+  
+    @keyframes bubble {
+        0% {
+            bottom: 0;
+            opacity: 0.8;
+            transform: translateX(0);
+        }
+  
+        50% {
+            opacity: 1;
+        }
+  
+        100% {
+            bottom: 100%;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+    }
+  
+    .plus {
+        justify-content: center;
+        align-items: center;
+        width: 28%;
+        aspect-ratio: 1/1;
+        border-radius: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 15px;
+        background-color: rgb(255, 255, 255);
+        cursor: pointer;
+  
+        -webkit-border-radius: 100%;
+        -moz-border-radius: 100%;
+        -ms-border-radius: 100%;
+        -o-border-radius: 100%;
+    }
+  
+    .plus img {
+        z-index: 1;
+    }
+  
+    .details-plus {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: rgb(115, 236, 67);
+        width: 100%;
+        height: 35px;
+        padding-left: 5px;
+        border-radius: 20px;
+        background-color: rgb(255, 255, 255);
+        position: absolute;
+        right: 0;
+        transition: all 400ms ease-in;
+        opacity: 0;
+        z-index: -1;
+  
+        -webkit-border-radius: 20px;
+        -moz-border-radius: 20px;
+        -ms-border-radius: 20px;
+        -o-border-radius: 20px;
+        -webkit-transition: all 400ms ease-in;
+        -moz-transition: all 400ms ease-in;
+        -ms-transition: all 400ms ease-in;
+        -o-transition: all 400ms ease-in;
+    }
+  
+    .plus:hover .details-plus {
+        opacity: 1;
+        z-index: 0;
+        width: 85px;
+    }
+  
+    .right {
+        width: max-content;
+    }
+  
+    .dishes {
+        display: grid;
+        grid-template-columns: repeat(2, 110px);
+        grid-template-rows: repeat(2, 90px);
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+  
+    .dish {
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-weight: 600;
+        background-color: rgb(203, 243, 255);
+        border-radius: 20px;
+        transition: all 300ms ease-out;
+        cursor: pointer;
+  
+        -webkit-border-radius: 20px;
+        -moz-border-radius: 20px;
+        -ms-border-radius: 20px;
+        -o-border-radius: 20px;
+        -webkit-transition: all 300ms ease-out;
+        -moz-transition: all 300ms ease-out;
+        -ms-transition: all 300ms ease-out;
+        -o-transition: all 300ms ease-out;
+    }
+  
+    .dish:hover {
+        transform: scale(1.09);
+        -webkit-transform: scale(1.09);
+        -moz-transform: scale(1.09);
+        -ms-transform: scale(1.09);
+        -o-transform: scale(1.09);
+    }
+  
+    .setting {
+        display: flex;
+        flex-flow: column;
+        gap: 10px;
+        align-self: stretch;
+    }
+  
+    .value-target-label {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: rgb(69, 69, 69);
+    }
+  
+    .set-target {
+        position: relative;
+        overflow: hidden;
+        border-radius: 15px;
+        -webkit-border-radius: 15px;
+        -moz-border-radius: 15px;
+        -ms-border-radius: 15px;
+        -o-border-radius: 15px;
+    }
+  
+    #value-target {
+        font-size: 1.5rem;
+        width: 100%;
+        padding: 8px 15px;
+        outline: none;
+        border: none;
+        background-color: rgb(255, 255, 255);
+    }
+  
+    #unit-target {
+        padding: 5px;
+        position: absolute;
+        right: 0;
+        height: 100%;
+        border: none;
+        outline: none;
+        background-color: rgb(52, 52, 52);
+        color: rgb(238, 238, 238);
+    }
+  
+    .set {
+        align-self: start;
+        border: none;
+        background-color: rgb(52, 52, 52);
+        color: rgb(240, 240, 240);
+        border-radius: 20px;
+        padding: 10px 20px;
+        cursor: pointer;
+  
+        -webkit-border-radius: 20px;
+        -moz-border-radius: 20px;
+        -ms-border-radius: 20px;
+        -o-border-radius: 20px;
+    }
+  
+    .selected-dish {
+        transform: scale(1.09);
+        background-color: rgb(107, 180, 220);
+    }
+  
+    /* Notification popup styles */
+    .notification {
+        display: none;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        z-index: 1000;
+    }
+  </style>
+  
+  <body>
+    <main class="container d-flex">
+        <section class="left">
+            <div class="col d-flex">
+                <h1 class="drinked-water"><span id="drinked-water">{{ drinked_water }}</span> ml</h1>
+                <p class="drink-target">Your target is <span id="target-intake">{{ target_intake }}</span> ml</p>
+                <div class="drop-container">
+                    <div class="drop">
+                        <div class="water">
+                            <div class="water-bubble"></div>
+                            <div class="water-bubble"></div>
+                            <div class="water-bubble"></div>
+                            <div class="water-bubble"></div>
+                        </div>
+                    </div>
+                    <span class="plus d-flex">
+                        <span class="details-plus">250 ml</span>
+                        <img src="{{ url_for('static', filename='plus.svg') }}" alt="">
+                    </span>
+                </div>
+            </div>
+        </section>
+        <section class="right">
+            <div class="col">
+                <ul class="dishes">
+                    <li class="dish d-flex">
+                        <p class="dish-volume">100</p>
+                        <span>ml</span>
+                    </li>
+                    <li class="dish d-flex">
+                        <p class="dish-volume">250</p>
+                        <span>ml</span>
+                    </li>
+                    <li class="dish d-flex">
+                        <p class="dish-volume">500</p>
+                        <span>ml</span>
+                    </li>
+                    <li class="dish d-flex">
+                        <p class="dish-volume">1500</p>
+                        <span>ml</span>
+                    </li>
+                </ul>
+                <div class="setting">
+                    <label for="value-target" class="value-target-label">Set your target:</label>
+                    <div class="set-target">
+                        <input type="number" id="value-target" value="{{ target_intake }}">
+                        <div class="buttons-container">
+                            <button id="set-target-btn">Update Target</button>
+                            <form id="reminder-form" method="POST">
+                                <button type="submit" class="set-reminder-btn">Set Reminder</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+          
+        </section>
+    </main>
+
+    <!-- Popup notification -->
+    <div class="notification" id="notification">
+        Congratulations! You have reached your target water intake.
+    </div>
+
+    <script>
+        "use strict";
+
+        const addBtn = document.querySelector(".plus");
+        let selectDish = document.querySelectorAll(".dish");
+        let inputTarget = document.getElementById("value-target");
+        let displayDrinkedWater = document.getElementById("drinked-water");
+        let displayTarget = document.getElementById("target-intake");
+        const reminderForm = document.getElementById('reminder-form');
+        const setTargetBtn = document.getElementById('set-target-btn');
+
+        let dish = 250;
+
+        // Function to simulate adding water
+        addBtn.addEventListener("click", function () {
+            let currentDrinked = parseInt(displayDrinkedWater.textContent);
+            let targetIntake = parseInt(displayTarget.textContent);
+            if (currentDrinked < targetIntake) {
+                currentDrinked += dish;
+                displayDrinkedWater.textContent = currentDrinked;
+
+                fetch('/update_intake', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ intake: dish })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.water_intake >= data.target_intake) {
+                        const notification = document.getElementById('notification');
+                        notification.style.display = 'block';
+                        setTimeout(() => {
+                            notification.style.display = 'none';
+                        }, 5000); // Hide after 5 seconds
+                    }
+                });
+            }
+        });
+
+        // Event listeners for selecting dish amounts
+        for (let i = 0; i < selectDish.length; i++) {
+            selectDish[i].addEventListener("click", function () {
+                for (let j = 0; j < selectDish.length; j++) {
+                    selectDish[j].classList.remove("selected-dish");
+                }
+                selectDish[i].classList.add("selected-dish");
+                dish = Number(selectDish[i].children[0].textContent);
+            });
+        }
+
+        // Handle the reminder form submission
+        reminderForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            fetch('/set_reminder', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Reminder set successfully');
+                }
+            })
+            .catch(error => console.error('Error setting reminder:', error));
+        });
+
+        // Handle the target update button click
+        setTargetBtn.addEventListener('click', function() {
+            const newTarget = parseInt(inputTarget.value);
+
+            fetch('/update_target', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ target_intake: newTarget })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    displayTarget.textContent = data.target_intake;
+                }
+            })
+            .catch(error => console.error('Error updating target:', error));
+        });
+    </script>
+</body>
