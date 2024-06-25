@@ -42,7 +42,7 @@ def send_reminder_notifications(name, interval):
         # Send notification
         notification.title = 'Water Reminder'
         notification.message = f"Hey, don't forget to drink water!"
-        icon_path = os.path.join( r"C:\Users\sindh\OneDrive\Desktop\notif\water-drop.png")
+        icon_path = os.path.join( "water-drop.png")
         
         if os.path.exists(icon_path):
             notification.icon = icon_path
