@@ -1,5 +1,0 @@
-flask
-notifypy
-threading
-time
-os
