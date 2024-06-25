@@ -1,5 +1,5 @@
 flask
-notify_py
+notifypy
 threading
 time
 os
